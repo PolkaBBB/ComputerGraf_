@@ -1,0 +1,48 @@
+<HTML>
+    <BODY>
+    <canvas id='lab01' width='400' height='300' style="border:1px solid">
+    </canvas>
+    <script>
+        var canvas = document.getElementById('lab01');
+        var ctx = canvas.getContext('2d');
+    
+        var i = 0;
+        var direction = 1;
+        var yoyo = true;
+
+        document.addEventListener("keydown", function(event) {
+                if (event.code == "ArrowRight") {
+                    direction = 1;
+                } else if (event.code == "ArrowLeft") {
+                    direction = -1;
+                } else if (event.code == "ArrowUp") {
+                    yoyo = true;
+                } else if (event.code == "ArrowDown") {
+                    yoyo = false;
+                }
+            });
+    
+        setInterval( function () {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.beginPath();
+                ctx.arc(50 + i, 150, 50, 0, Math.PI * 2, true);
+                ctx.arc(50 + i, 150, 30, 0, Math.PI * 2, true);
+                if (yoyo){
+                    ctx.arc(50, 170, 15, -10, Math.PI * 2, !yoyo);
+                }
+                ctx.moveTo(40 + i, 140);
+                ctx.arc(35 + i, 150, 6, 0, Math.PI * 2, true);
+                ctx.arc(35 + i, 150, 2, 0, Math.PI * 2, true);
+                ctx.moveTo(70 + i, 140);
+                ctx.arc(65 + i, 150, 6, 0, Math.PI * 2, true);
+                ctx.arc(65 + i, 150, 2, 0, Math.PI * 2, true);
+                ctx.fillStyle = "#80daeb";
+                ctx.fill();
+                ctx.stroke();
+
+                i += direction; 
+            }, 10);
+    
+    </script>
+    </BODY>
+    </HTML>
