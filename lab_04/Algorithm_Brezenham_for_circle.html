@@ -1,0 +1,49 @@
+<HTML>
+<BODY>
+<canvas id="lab04" width="500" height="500">
+</canvas>
+<script>
+    
+    function Algorithm_Brezenhem_for_circle(x1, y1, R) {
+        var x = 0, 
+        y = R;
+        var error = 0;
+        var delta = (2 - 2 * R);
+        while (y >= 0) {
+            ctx.fillRect(x1 + x, y1 + y, 1, 1);
+            ctx.fillRect(x1 + x, y1 - y, 1, 1);
+            ctx.fillRect(x1 - x, y1 + y, 1, 1);
+            ctx.fillRect(x1 - x, y1 - y, 1, 1);
+            error = 2 * (delta + y) - 1;
+            if (delta < 0 && error <= 0) {
+                delta += 2 * x++ + 1;
+                continue;
+            }
+            error = 2 * (delta - x) - 1;
+            if (delta > 0 && error > 0) {
+                delta += 1 - 2 * y--;
+                continue;
+            }
+            x++;
+            delta += 2 * (x - y);
+            y--;
+        }
+    }
+</script>
+<script>
+    var canvas = document.getElementById("lab02");
+    var ctx = canvas.getContext("2d");
+    canvas.addEventListener("click", function(event){
+        x = event.offsetX;
+        y = event.offsetY;
+        R = Math.random() * (50 - 10) + 10;
+        Algorithm_Brezenhem_for_circle(x, y, R);
+    });
+    
+    document.addEventListener("dblclick", function(event) {
+                x, y, R = 0, 0, 0;
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            });
+</script>
+</BODY>
+</HTML>
