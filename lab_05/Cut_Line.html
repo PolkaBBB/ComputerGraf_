@@ -1,0 +1,99 @@
+<html>
+<body style="margin:0;">
+	<canvas id="lb5" width="1000" height="1000"></canvas>
+	<script type>
+		let canvas = document.getElementById('lb5');
+		let ctx = canvas.getContext('2d');
+		let lineClick = false;
+		function Line(x1, y1, x2, y2) {
+			var deltaX = Math.abs(x2 - x1);
+			var deltaY = Math.abs(y2 - y1);
+			var signX = x1 < x2 ? 1 : -1;
+			var signY = y1 < y2 ? 1 : -1;
+			var error = deltaX - deltaY;
+			ctx.fillRect(x2, y2, 1, 1);
+			while(x1 != x2 || y1 != y2) 
+			{
+				ctx.fillRect(x1, y1, 1, 1);
+				var error2 = error * 2;
+				if(error2 > -deltaY) 
+				{
+					error -= deltaY;
+					x1 += signX;
+				}
+				if(error2 < deltaX) 
+				{
+					error += deltaX;
+					y1 += signY;
+				}
+			}
+		}
+		var massive = [
+			[500, 800], //x
+			[500, 800]	//y
+		];
+		function in_Figure(x, y){
+			return (x>=massive[0][0] && x<=massive[0][1] && y>=massive[1][0] && y<=massive[1][1]);
+		}
+		function Cut_line(x1, y1, x2, y2){
+			if(in_Figure(x1, y1)&&in_Figure(x2, y2)){
+				Line(x1, y1, x2, y2);
+				return;
+			}
+			var dx = x2-x1;
+			var dy = y2-y1;
+			var k = [0,0,0,0];
+			k[0] = -(x1 - massive[0][0])/dx;
+			k[1] = (massive[0][1] - x1)/dx;
+			k[2] = -(y1 - massive[1][0])/dy;
+			k[3] = (massive[1][1] - y1)/dy;
+			var count = 0;
+			var massiveAnswers = [
+				[0,0],
+				[0,0]
+			]
+			for (var i = 0; i < 4; i++) {
+				if(k[i]<=1 && k[i]>=0){
+					if(count <2){
+						massiveAnswers[count][0] = Math.round(x1 + k[i] * dx);
+						massiveAnswers[count][1] = Math.round(y1 + k[i] * dy);
+						count++;
+					}
+				}
+			}
+			if(in_Figure(massiveAnswers[0][0], massiveAnswers[0][1])){
+				if(count ==2) Line(massiveAnswers[0][0], massiveAnswers[0][1], massiveAnswers[1][0], massiveAnswers[1][1]);
+				else if(count == 1){
+					if(in_Figure(x1, y1)){
+						Line(x1, y1, massiveAnswers[0][0], massiveAnswers[0][1]);
+					}else{
+					Line(massiveAnswers[0][0], massiveAnswers[0][1],x2, y2);	
+					}
+				}
+			}
+			
+		}
+		function makeLine(event){
+			if (!lineClick) {
+				lineClick = true;
+				makeLine.x = event.offsetX;
+				makeLine.y = event.offsetY;
+			}
+			else {
+				lineClick = false;
+				Cut_line(makeLine.x, 
+					 makeLine.y, 
+					 event.offsetX,
+					 event.offsetY);
+			}
+		}
+		
+		canvas.addEventListener('click', makeLine, false);
+		
+		Line(massive[0][0], massive[1][0], massive[0][1], massive[1][0]);
+		Line(massive[0][1], massive[1][0], massive[0][1], massive[1][1]);
+		Line(massive[0][1], massive[1][1], massive[0][0], massive[1][1]);
+		Line(massive[0][0], massive[1][1], massive[0][0], massive[1][0]);
+	</script>
+</body>
+</html>
