@@ -42,7 +42,7 @@
         Algorithm_Brezenhem_for_circle(x, y, R); //передаем координаты центра окружности те, на которые был совершён клик мыши
     });
     
-    document.addEventListener("dblclick", function(event) { //функция, которая очищает холст при двойном клике мыши
+    canvas.addEventListener("dblclick", function(event) { //функция, которая очищает холст при двойном клике мыши
                 x, y, R = 0, 0, 0;
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
             });
