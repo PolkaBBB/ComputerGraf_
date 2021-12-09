@@ -10,23 +10,34 @@
 	var n = 0;
 	var state = 0;
 
-	function fillArea(ctx, x, y) {
-		if (ctx.getImageData(x, y, 1, 1).data[3] != 255) {
-			ctx.fillRect(x, y, 1, 1);
-			while(ctx.getImageData(x, y-1, 1, 1).data[3] != 255){
-			    ctx.fillRect(x, y-1, 1, 1);
-			}
-			while(ctx.getImageData(x-1, y, 1, 1).data[3] != 255){
-			    ctx.fillRect(x-1, y, 1, 1);
-			}
-			while(ctx.getImageData(x, y+1, 1, 1).data[3] != 255){
-			    ctx.fillRect(x, y+1, 1, 1);
-			}
-			while(ctx.getImageData(x+1, y, 1, 1).data[3] != 255){
-			    ctx.fillRect(x+1, y, 1, 1);
-			}
-		} else return;
+	function PixelFilled(ctx, x, y){
+	    if (ctx.getImageData(x,y,1,1).data[3] != 255){
+	        return 1;
+	    }else{return 0;}
 	}
+
+	function fillArea(ctx, x, y) {
+	    var stack = [];
+	    var pixel.stack.pop();
+	    var object = ({pixel.X, pixel.Y});
+	    stack.push({X:x, Y:y});
+	    while (stack.size()>0){
+	        ctx.fillRect(x,y,1,1);
+	        if (PixelFilled(ctx,x,y-1)){
+	            stack.push({X:x, Y:y-1});
+	        }
+	        if (PixelFilled(ctx,x-1,y)){
+	            stack.push({X:x-1, Y:y});
+	        }
+	        if (PixelFilled(ctx,x,y+1)){
+	            stack.push({X:x, Y:y+1});
+	        }
+	        if (PixelFilled(ctx,x+1,y)){
+	            stack.push({X:x+1, Y:y});
+	        }
+	    }
+	}
+
 
 	canvas.addEventListener('click', function(e) {
 			if (state == 0) {
