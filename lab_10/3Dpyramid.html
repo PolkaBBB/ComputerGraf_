@@ -1,0 +1,103 @@
+<HTML>
+<BODY>
+<div class= "canvas">
+<canvas id = "lab_09" width='500' height='400' style="border:1px solid black;"/>
+</div>
+<script>
+	function Setcolor_Surface (depth, plane, color){
+	    var point12_x = plane[0].x-plane[1].x;
+	    var point12_y = plane[0].y-plane[1].y;
+	    var point12_z = plane[0].z-plane[1].z;
+	  
+	    var point13_x = plane[0].x-plane[2].x;
+	    var point13_y = plane[0].y-plane[2].y;
+	    var point13_z = plane[0].z-plane[2].z;
+	    
+		var Normy = (point12_z*point13_x-point13_z*point12_x)/(point13_y*point12_x-point12_y*point13_x);
+		var Norm_x = -1*(Normy*point12_y+point12_z)/point12_x;
+		var Norm_y = Normy;
+		var Norm_z = 1;
+		
+		var beam_x = plane[0].x-depth.x;
+		var beam_y = plane[0].y-depth.y;
+		var beam_z = plane[0].z-depth.z;
+		
+		
+		var cos_a = Norm_x*beam_x+Norm_y*beam_y+Norm_z+beam_z;
+		var cos_b = Math.sqrt(Math.pow(Norm_x,2)+Math.pow(Norm_y,2)+Math.pow(Norm_z,2));
+		var cos_c = Math.sqrt(Math.pow(beam_x,2)+Math.pow(beam_y,2)+Math.pow(beam_z,2));
+		var cos = cos_a/cos_b/cos_c;
+	
+		var r = Math.round(((color&0xff0000)>>16)*Math.abs(cos));
+		var g = Math.round(((color&0x00ff00)>>8)*Math.abs(cos));
+		var b = Math.round(((color&0x0000ff))*Math.abs(cos));
+		
+		var pyramid = [];
+		pyramid.push({x:plane[0].x , y:plane[0].y});
+		pyramid.push({x:plane[1].x , y:plane[1].y});
+		pyramid.push({x:plane[2].x , y:plane[2].y});
+		
+		color = '#'+r.toString(16) + g.toString(16) + b.toString(16);
+		
+		console.log(color);
+		toFill_pyramid(pyramid, color);
+	}
+</script>
+<script>	
+	function toFill_pyramid(pyramid, color) {
+		ctx.fillStyle = color;
+		ctx.beginPath();
+		ctx.moveTo(pyramid[0].x,pyramid[0].y);
+		for(var i in pyramid){
+			ctx.lineTo(pyramid[i].x,pyramid[i].y);
+		}
+		ctx.closePath();
+		ctx.fill();
+	}
+</script>
+<script>
+	function Light_change(depth,del){
+        if (depth.z == 200){
+		    del = -1;
+		} 
+		else if (depth.z == 150){
+		    del = 1;
+		} 
+		depth.z += del;
+		Setcolor_Surface(depth, front, color);
+		Setcolor_Surface(depth, back, color);
+    }
+</script>
+<script>
+    function Coordinate(array,x,y,z){
+         array.push({x,y,z});
+         return array;
+    }
+</script>
+<script>
+	var canvas = document.getElementById("lab_09");
+	var ctx = canvas.getContext("2d");
+	
+	var front = [];
+	
+	front = Coordinate(front,100,200,50);
+	front = Coordinate(front,220,70,50);
+	front = Coordinate(front,300,250,30);
+	
+	var back = [];
+	
+	back = Coordinate(back,220,70,50);
+	back = Coordinate(back,300,250,55);
+	back = Coordinate(back,330,200,50);
+	
+	var depth = {x:100, y:130, z:100};
+	
+	var color = "0xFA8072";
+	
+	var del = 1;
+	
+	setInterval(function(){Light_change(depth, del)}, 30);
+	
+</script> 
+</BODY>
+</HTML>
