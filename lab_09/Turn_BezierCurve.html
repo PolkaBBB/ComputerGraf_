@@ -1,0 +1,151 @@
+<HTML>
+<BODY>
+<canvas id="bezier" width="500" height="400">
+</canvas>
+<script>
+	function distance_points(p1x, p1y, p2x, p2y, p3x, p3y){
+	    var dist_y = p3y-p1y;
+	    var dist_x = p3x-p1x;
+	    var a = Math.abs(dist_y*p2x-dist_x*p2y+(p3x*p1y-p1x*p3y));
+	    var b = Math.sqrt(Math.pow(dist_y, 2)+Math.pow(dist_x, 2));
+	    return a/b;
+	}
+</script>
+<script>
+	function Bezier_Curve(ctx, p1x, p1y, p2x, p2y, p3x, p3y){
+		if(distance_points(p1x, p1y, p2x, p2y, p3x, p3y) > 1){
+			var p4x= 0.5*p1x + 0.5*p2x;
+			var p4y= 0.5*p1y + 0.5*p2y;
+			var p5x= 0.5*p2x + 0.5*p3x;
+			var p5y= 0.5*p2y + 0.5*p3y;
+			var p6x= 0.5*p4x + 0.5*p5x;
+			var p6y= 0.5*p4y + 0.5*p5y;
+			Bezier_Curve(ctx, p1x, p1y, p4x, p4y, p6x, p6y);
+			Bezier_Curve(ctx, p6x, p6y, p5x, p5y, p3x, p3y);
+		} else{
+			Drawing_Line(ctx, p1x, p1y, p3x, p3y);
+			return;
+		}
+	}
+</script>
+<script>
+	function Drawing_Line(ctx, p1x, p1y, p2x, p2y) {
+		var dy = Math.abs(p2y-p1y);
+		var dx = Math.abs(p2x-p1x);
+		var dmax = Math.max(dx, dy);
+		var dmin = Math.min(dx, dy);
+		var xdir = 1;
+		if (p2x<p1x){
+	        xdir = -1;
+		} 	
+		var ydir = 1;
+		if (p2y<p1y){ 
+		    ydir = -1;
+		}
+		var eps = 0;
+		var s = 1;
+		var k=2*dmin;
+		if (dy<=dx) {
+			var y = p1y;
+			for (var x=p1x; x*xdir<=p2x*xdir; x+=xdir) {
+				ctx.fillRect(x*s, y*s, s, s);
+				eps = eps+k;
+				if (eps>dmax) {
+					y+=ydir;
+					eps = eps - 2*dmax;
+				}	
+			} 
+		} else {
+			var x = p1x;
+			for (var y=p1y; y*ydir<=p2y*ydir; y+=ydir) {
+				ctx.fillRect(x*s, y*s, s, s);
+				eps = eps+k;
+				if (eps>dmax) {
+					x+=xdir;
+					eps = eps - 2*dmax;
+				}	
+			} 
+		}		
+	}
+</script>
+<script>
+	function Multi_Matrix(Matrix_1, Matrix_2) {
+		var strMatrix_1 = Matrix_1.length;
+		var stlbMatrix_1 = Matrix_1[0].length;
+		var strMatrix_2 = Matrix_2.length;
+		var stlbMatrix_2 = Matrix_2[0].length;
+		var answerMatrix = [];
+		if (stlbMatrix_1 != strMatrix_2){
+		    return 0;
+		} 
+		var k=0;
+		while(k < strMatrix_1){
+		    answerMatrix[k] = [];
+		    k++;
+		}
+		for (var it = 0; it < stlbMatrix_2; it++){ 
+			for (var i = 0; i < strMatrix_1; i++){ 
+			    var value = 0;
+				for (var j = 0; j < strMatrix_2; j++){
+				    value += Matrix_1[i][j]*Matrix_2[j][it];
+				}
+			    answerMatrix[i][it] = value;
+			}
+		}
+		return answerMatrix;
+	}
+</script>
+<script>
+	var canvas = document.getElementById("bezier");
+	var ctx = canvas.getContext("2d");
+	var click_counter = 1;
+	
+	canvas.addEventListener("click", function(event){
+		if (click_counter == 1){
+			p1x = event.offsetX;
+			p1y = event.offsetY;
+			ctx.fillRect(p1x, p1y, 1, 1);
+			click_counter = 2;
+			return;
+		}
+		if (click_counter == 2){
+			p2x = event.offsetX;
+			p2y = event.offsetY;
+			ctx.fillRect(p2x, p2y, 1, 1);
+			click_counter = 3;
+			return;
+		}
+		if (click_counter == 3){
+			p3x = event.offsetX;
+			p3y = event.offsetY;
+			ctx.fillRect(p3x, p3y, 1, 1);
+			click_counter = 1;
+		}
+		
+        Bezier_Curve(ctx, p1x, p1y, p2x, p2y, p3x, p3y);
+		
+        for(var grad = 0; grad < 360; grad += 5){
+            var rad = (grad*Math.PI)/180;
+            var p4x = p1x - p2x;
+			var p4y = p1y - p2y;
+			var p5x = p3x - p2x;
+			var p5y = p3y - p2y;
+			var answerMatrix=[];
+            var Matrix_turn_OY = [[Math.cos(rad), 0, -1*Math.sin(rad), 0],
+					            [0,           1, 0,              0],
+                                [Math.sin(rad), 0, Math.cos(rad),    0],
+                                [0,           0, 0,              1]];
+            
+            answerMatrix = Multi_Matrix(Matrix_turn_OY, [[p4x], [p4y], [0], [1]]);
+                p4x = answerMatrix[0][0] + p2x;
+                p4y = answerMatrix[1][0] + p2y;
+            answerMatrix = Multi_Matrix(Matrix_turn_OY, [[p5x], [p5y], [0], [1]]);
+                p5x = answerMatrix[0][0] + p2x;
+                p5y = answerMatrix[1][0] + p2y;
+            Bezier_Curve(ctx, p4x, p4y, p2x, p2y, p5x, p5y);
+		}
+	});
+
+</script>
+</BODY>
+</HTML>
